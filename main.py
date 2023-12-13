@@ -11,6 +11,30 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Mancala")
 
 
+class Circle:
+    radius = 45
+    diameter = radius * 2
+    outline_thickness = 5
+    hover_outline_color = "white"
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def get_surface(self):
+        return pygame.Surface((self.diameter, self.diameter), pygame.SRCALPHA)
+
+    def draw(self):
+        pygame.draw.circle(self.get_surface(), TRANSPARENT, (self.radius, self.radius), self.radius)
+
+    def is_hovered_over(self, mouse_pos):
+        return self.get_surface().get_rect(center=(self.x, self.y)).collidepoint(mouse_pos)
+
+    def draw_outline_hovered(self):
+        pygame.draw.circle(screen, self.hover_outline_color, (self.x, self.y), 45 +
+                           self.outline_thickness, self.outline_thickness)
+
+
 def get_background_image():
     background_image = pygame.image.load('Images/background.png').convert()
     background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -25,20 +49,13 @@ def get_board():
     return board_image, board_width, board_height
 
 
-def draw_holes():
-    circle_surface = pygame.Surface((100, 100), pygame.SRCALPHA)
-    pygame.draw.circle(circle_surface, TRANSPARENT, (50, 50), 50)
-    return circle_surface
-
-
 def main():
     done = False
-    hover = False
-    hover_outline_color = "white"
-    outline_thickness = 5
     board_image, board_width, board_height = get_board()
     background_image = get_background_image()
-    circle_surface = draw_holes()
+    circ_starting_x = 326
+    circ_starting_y = 287
+    circ1 = Circle(circ_starting_x, circ_starting_y)
 
     while not done:
         screen.blit(background_image, (0, 0))
@@ -47,16 +64,8 @@ def main():
         screen.blit(board_image, overlay_position)
         mouse_pos = pygame.mouse.get_pos()
 
-        if circle_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)).collidepoint(mouse_pos):
-            hovered = True
-        else:
-            hovered = False
-
-        if hovered:
-            pygame.draw.circle(screen, hover_outline_color, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), 50 +
-                               outline_thickness, outline_thickness)
-        else:
-            screen.blit(circle_surface, (SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT // 2 - 50))
+        if circ1.is_hovered_over(mouse_pos):
+            circ1.draw_outline_hovered()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
