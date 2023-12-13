@@ -12,9 +12,9 @@ pygame.display.set_caption("Mancala")
 
 
 class Circle:
-    radius = 45
+    radius = 53
     diameter = radius * 2
-    outline_thickness = 5
+    outline_thickness = 7
     hover_outline_color = "white"
 
     def __init__(self, x, y):
@@ -28,7 +28,8 @@ class Circle:
         pygame.draw.circle(self.get_surface(), TRANSPARENT, (self.radius, self.radius), self.radius)
 
     def is_hovered_over(self, mouse_pos):
-        return self.get_surface().get_rect(center=(self.x, self.y)).collidepoint(mouse_pos)
+        distance_from_center = ((self.x - mouse_pos[0]) ** 2 + (self.y - mouse_pos[1]) ** 2) ** 0.5
+        return distance_from_center <= self.radius
 
     def draw_outline_hovered(self):
         pygame.draw.circle(screen, self.hover_outline_color, (self.x, self.y), 45 +
@@ -42,7 +43,7 @@ def get_background_image():
 
 
 def get_board():
-    board_image = pygame.image.load('Images/mancala_board.png').convert_alpha()
+    board_image = pygame.image.load('Images/mancala_board_blurred.png').convert_alpha()
     board_width = board_image.get_width() * 0.75
     board_height = board_image.get_height() * 0.75
     board_image = pygame.transform.scale(board_image, (int(board_width), int(board_height)))
@@ -50,18 +51,20 @@ def get_board():
 
 
 def make_circles():
-    circ1 = Circle(326, 286)
-    circ2 = Circle(453, 286)
-    circ3 = Circle(580, 286)
-    circ4 = Circle(706, 286)
-    circ5 = Circle(833, 286)
-    circ6 = Circle(960, 286)
-    circ7 = Circle(326, 436)
-    circ8 = Circle(453, 436)
-    circ9 = Circle(580, 436)
-    circ10 = Circle(706, 436)
-    circ11 = Circle(833, 436)
-    circ12 = Circle(960, 436)
+    y1 = 287
+    y2 = y1 + 150
+    circ1 = Circle(326, y1)
+    circ2 = Circle(453, y1)
+    circ3 = Circle(580, y1)
+    circ4 = Circle(706, y1)
+    circ5 = Circle(833, y1)
+    circ6 = Circle(960, y1)
+    circ7 = Circle(326, y2)
+    circ8 = Circle(453, y2)
+    circ9 = Circle(580, y2)
+    circ10 = Circle(706, y2)
+    circ11 = Circle(833, y2)
+    circ12 = Circle(960, y2)
     return circ1, circ2, circ3, circ4, circ5, circ6, circ7, circ8, circ9, circ10, circ11, circ12
 
 
