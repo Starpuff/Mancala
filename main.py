@@ -49,13 +49,35 @@ def get_board():
     return board_image, board_width, board_height
 
 
+def make_circles():
+    circ1 = Circle(326, 286)
+    circ2 = Circle(453, 286)
+    circ3 = Circle(580, 286)
+    circ4 = Circle(706, 286)
+    circ5 = Circle(833, 286)
+    circ6 = Circle(960, 286)
+    circ7 = Circle(326, 436)
+    circ8 = Circle(453, 436)
+    circ9 = Circle(580, 436)
+    circ10 = Circle(706, 436)
+    circ11 = Circle(833, 436)
+    circ12 = Circle(960, 436)
+    return circ1, circ2, circ3, circ4, circ5, circ6, circ7, circ8, circ9, circ10, circ11, circ12
+
+
+def draw_hovered_circles(circle_list, mouse_pos):
+    for circle in circle_list:
+        if circle.is_hovered_over(mouse_pos):
+            circle.draw_outline_hovered()
+
+
 def main():
     done = False
     board_image, board_width, board_height = get_board()
     background_image = get_background_image()
-    circ_starting_x = 326
-    circ_starting_y = 287
-    circ1 = Circle(circ_starting_x, circ_starting_y)
+
+    make_circles()
+    circle_list = make_circles()
 
     while not done:
         screen.blit(background_image, (0, 0))
@@ -64,8 +86,7 @@ def main():
         screen.blit(board_image, overlay_position)
         mouse_pos = pygame.mouse.get_pos()
 
-        if circ1.is_hovered_over(mouse_pos):
-            circ1.draw_outline_hovered()
+        draw_hovered_circles(circle_list, mouse_pos)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
