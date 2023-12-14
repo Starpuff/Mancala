@@ -7,6 +7,8 @@ SCREEN_HEIGHT = 720
 
 TRANSPARENT = (0, 0, 0, 0)
 
+FONT = pygame.font.SysFont("Arial", 30)
+
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Mancala")
 
@@ -17,9 +19,11 @@ class Circle:
     outline_thickness = 7
     hover_outline_color = "white"
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, number):
+        self.number = number
         self.x = x
         self.y = y
+        self.pebbles = 4
 
     def get_surface(self):
         return pygame.Surface((self.diameter, self.diameter), pygame.SRCALPHA)
@@ -34,6 +38,17 @@ class Circle:
     def draw_outline_hovered(self):
         pygame.draw.circle(screen, self.hover_outline_color, (self.x, self.y), 45 +
                            self.outline_thickness, self.outline_thickness)
+    def get_number(self):
+        return self.number
+
+    def add_pebble(self):
+        self.pebbles += 1
+
+    def get_nr_of_pebbles(self):
+        return self.pebbles
+
+    def remove_pebbles(self):
+        self.pebbles = 0
 
 
 def get_background_image():
@@ -53,18 +68,18 @@ def get_board():
 def make_circles():
     y1 = 287
     y2 = y1 + 150
-    circ1 = Circle(326, y1)
-    circ2 = Circle(453, y1)
-    circ3 = Circle(580, y1)
-    circ4 = Circle(706, y1)
-    circ5 = Circle(833, y1)
-    circ6 = Circle(960, y1)
-    circ7 = Circle(326, y2)
-    circ8 = Circle(453, y2)
-    circ9 = Circle(580, y2)
-    circ10 = Circle(706, y2)
-    circ11 = Circle(833, y2)
-    circ12 = Circle(960, y2)
+    circ6 = Circle(326, y1, 6)
+    circ5 = Circle(453, y1, 5)
+    circ4 = Circle(580, y1,4)
+    circ3 = Circle(706, y1, 3)
+    circ2 = Circle(833, y1, 2)
+    circ1 = Circle(960, y1, 1)
+    circ7 = Circle(326, y2, 7)
+    circ8 = Circle(453, y2, 8)
+    circ9 = Circle(580, y2, 9)
+    circ10 = Circle(706, y2, 10)
+    circ11 = Circle(833, y2, 11)
+    circ12 = Circle(960, y2, 12)
     return circ1, circ2, circ3, circ4, circ5, circ6, circ7, circ8, circ9, circ10, circ11, circ12
 
 
@@ -72,6 +87,18 @@ def draw_hovered_circles(circle_list, mouse_pos):
     for circle in circle_list:
         if circle.is_hovered_over(mouse_pos):
             circle.draw_outline_hovered()
+            draw_nr_of_pebbles(circle_list, mouse_pos)
+
+
+def draw_nr_of_pebbles(circle_list, mouse_pos):
+    for circle in circle_list:
+        if circle.is_hovered_over(mouse_pos):
+            nr_of_pebbles = circle.get_nr_of_pebbles()
+            rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
+            if circle.get_number() <= 6:
+                screen.blit(rendered_number, (circle.x - 5, circle.y - 90))
+            else:
+                screen.blit(rendered_number, (circle.x - 5, circle.y + 50))
 
 
 def main():
