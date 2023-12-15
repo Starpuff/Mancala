@@ -1,4 +1,5 @@
 import pygame
+import random
 
 pygame.init()
 
@@ -79,7 +80,7 @@ def make_circles():
     y2 = y1 + 150
     circ6 = Circle(326, y1, 6)
     circ5 = Circle(453, y1, 5)
-    circ4 = Circle(580, y1,4)
+    circ4 = Circle(580, y1, 4)
     circ3 = Circle(706, y1, 3)
     circ2 = Circle(833, y1, 2)
     circ1 = Circle(960, y1, 1)
@@ -105,10 +106,12 @@ def draw_nr_of_pebbles(circle_list, mouse_pos, num_flag_up, num_flag_down):
             nr_of_pebbles = circle.get_nr_of_pebbles()
             rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
             if circle.get_number() <= 6:
-                screen.blit(num_flag_up, (circle.x - num_flag_up.get_width()/2, circle.y - 1.75*num_flag_up.get_height()))
+                screen.blit(num_flag_up,
+                            (circle.x - num_flag_up.get_width() / 2, circle.y - 1.75 * num_flag_up.get_height()))
                 screen.blit(rendered_number, (circle.x - 5, circle.y - 130))
             else:
-                screen.blit(num_flag_down, (circle.x - num_flag_down.get_width()/2, circle.y + 1.5*num_flag_down.get_height()/2))
+                screen.blit(num_flag_down,
+                            (circle.x - num_flag_down.get_width() / 2, circle.y + 1.5 * num_flag_down.get_height() / 2))
                 screen.blit(rendered_number, (circle.x - 5, circle.y + 90))
 
 
@@ -119,6 +122,28 @@ def draw_player_flags(player_one_flag, player_two_flag, player_one_points, playe
     screen.blit(player_two_flag, (SCREEN_WIDTH - player_two_flag.get_width() - 16, 420))
     render_player_two_points = FONT.render(str(player_two_points), True, "white")
     screen.blit(render_player_two_points, (SCREEN_WIDTH - 100, 433))
+
+
+def get_pebble_images():
+    one_pebble = pygame.image.load('Images/1-pebble-heart.png').convert_alpha()
+    two_pebbles = pygame.image.load('Images/2-pebbles.png').convert_alpha()
+    three_pebbles = pygame.image.load('Images/3-pebbles.png').convert_alpha()
+    return one_pebble, two_pebbles, three_pebbles
+
+
+def draw_pebbles(circle_list, mouse_pos):
+    pebble_img_list = get_pebble_images()
+    for circle in circle_list:
+        nr_of_pebbles = circle.get_nr_of_pebbles()
+        if nr_of_pebbles == 1:
+            screen.blit(pebble_img_list[0], (circle.x - pebble_img_list[0].get_width() / 2, circle.y
+                                             - pebble_img_list[0].get_height() / 2))
+        elif nr_of_pebbles == 2:
+            screen.blit(pebble_img_list[1], (circle.x - pebble_img_list[1].get_width() / 2, circle.y
+                                             - pebble_img_list[1].get_height() / 2))
+        elif nr_of_pebbles >= 3:
+            screen.blit(pebble_img_list[2], (circle.x - pebble_img_list[2].get_width() / 2, circle.y
+                                             - pebble_img_list[2].get_height() / 2))
 
 
 def main():
@@ -132,6 +157,15 @@ def main():
     make_circles()
     circle_list = make_circles()
 
+    # Testing input
+    circle_list[0].remove_pebbles()
+    circle_list[0].add_pebble()
+    circle_list[1].remove_pebbles()
+    circle_list[1].add_pebble()
+    circle_list[1].add_pebble()
+
+    # Done testing
+
     while not done:
         screen.blit(background_image, (0, 0))
         overlay_position = (SCREEN_WIDTH // 2 - board_image.get_width() // 2,
@@ -139,6 +173,7 @@ def main():
         screen.blit(board_image, overlay_position)
         mouse_pos = pygame.mouse.get_pos()
 
+        draw_pebbles(circle_list, mouse_pos)
         draw_player_flags(player_one_flag, player_two_flag, player_one_points, player_two_points)
         draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down)
 
