@@ -46,6 +46,9 @@ class Circle:
     def add_pebble(self):
         self.pebbles += 1
 
+    def add_n_pebbles(self, n):
+        self.pebbles += n
+
     def get_nr_of_pebbles(self):
         return self.pebbles
 
@@ -166,6 +169,51 @@ def draw_pebbles(circle_list):
                                              - pebble_img_list[2].get_height() / 2))
 
 
+def circle_is_clicked(circle_list, mouse_pos, player_turn):
+    for circle in circle_list:
+        if circle.is_hovered_over(mouse_pos) and ((player_turn == 1 and 7 < circle.get_number() <= 13) or
+                                                  (player_turn == 2 and 0 < circle.get_number() <= 6)):
+            current_pebbles = circle.get_nr_of_pebbles()
+            circle.remove_pebbles()
+            i = 1
+            if current_pebbles == 0:
+                return player_turn
+            while current_pebbles > 0:
+                if player_turn == 1 and (circle.get_number() + i) % 14 == 7:
+                    i += 1
+                elif player_turn == 2 and (circle.get_number() + i) % 14 == 0:
+                    i += 1
+                last_circle = circle_list[(circle.get_number() + i) % 14]
+                last_circle.add_pebble()
+                current_pebbles -= 1
+                i += 1
+            new_player_turn = last_circle_handling(last_circle, circle_list, player_turn)
+            return new_player_turn
+
+
+def last_circle_handling(last_circle, circle_list, player_turn):
+    new_player_turn = player_turn
+    if last_circle.get_number() == 0 and player_turn == 1:
+        new_player_turn = 1
+    elif last_circle.get_number() == 7 and player_turn == 2:
+        new_player_turn = 2
+    elif last_circle.get_nr_of_pebbles() == 1:
+        if player_turn == 1 and 7 < last_circle.get_number() <= 13:
+            opposite_circle = circle_list[14 - last_circle.get_number()]
+            circle_list[0].add_n_pebbles(opposite_circle.get_nr_of_pebbles() + 1)
+            new_player_turn = 2
+        elif player_turn == 2 and 0 < last_circle.get_number() <= 6:
+            opposite_circle = circle_list[14 - last_circle.get_number()]
+            circle_list[7].add_n_pebbles(opposite_circle.get_nr_of_pebbles() + 1)
+            new_player_turn = 1
+    else:
+        if player_turn == 1:
+            new_player_turn = 2
+        else:
+            new_player_turn = 1
+    return new_player_turn
+
+
 def main():
     done = False
 
@@ -206,16 +254,7 @@ def main():
             if event.type == pygame.QUIT:
                 done = True
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                for circle in circle_list:
-                    if (circle.is_hovered_over(mouse_pos) and circle.get_number() is not 0
-                            and circle.get_number() is not 7):
-                        current_pebbles = circle.get_nr_of_pebbles()
-                        circle.remove_pebbles()
-                        i = 1
-                        while current_pebbles > 0:
-                            circle_list[(circle.get_number() + i) % 14].add_pebble()
-                            current_pebbles -= 1
-                            i += 1
+                player_turn = circle_is_clicked(circle_list, mouse_pos, player_turn)
 
         pygame.display.flip()
 
