@@ -78,26 +78,26 @@ def get_flags():
 def make_circles():
     y1 = 287
     y2 = y1 + 150
-    circ6 = Circle(326, y1, 6)
-    circ5 = Circle(453, y1, 5)
-    circ4 = Circle(580, y1, 4)
-    circ3 = Circle(706, y1, 3)
-    circ2 = Circle(833, y1, 2)
-    circ1 = Circle(960, y1, 1)
-    circ7 = Circle(326, y2, 7)
-    circ8 = Circle(453, y2, 8)
-    circ9 = Circle(580, y2, 9)
-    circ10 = Circle(706, y2, 10)
-    circ11 = Circle(833, y2, 11)
-    circ12 = Circle(960, y2, 12)
-    circ0 = Circle(193, y1 + 50, 0)
-    circ13 = Circle(1093, y2 - 50, 13)
+    circ13 = Circle(326, y1, 13) # randul 1, primul cerc
+    circ12 = Circle(453, y1, 12)
+    circ11 = Circle(580, y1, 11)
+    circ10 = Circle(706, y1, 10)
+    circ9 = Circle(833, y1, 9)
+    circ8 = Circle(960, y1, 8)
+    circ1 = Circle(326, y2, 1)  # randul 2, primul cerc
+    circ2 = Circle(453, y2, 2)
+    circ3 = Circle(580, y2, 3)
+    circ4 = Circle(706, y2, 4)
+    circ5 = Circle(833, y2, 5)
+    circ6 = Circle(960, y2, 6)
+    circ0 = Circle(192, y1 + 50, 0)  # player 1 (stanga)
+    circ7 = Circle(1092, y2 - 50, 7)  # player 2 (dreapta)
     return circ0, circ1, circ2, circ3, circ4, circ5, circ6, circ7, circ8, circ9, circ10, circ11, circ12, circ13
 
 
 def draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down):
     for circle in circle_list:
-        if circle.is_hovered_over(mouse_pos) and 0 < circle.get_number() < 13:
+        if circle.is_hovered_over(mouse_pos) and circle.get_number() is not 0 and circle.get_number() is not 7:
             circle.draw_outline_hovered()
             draw_nr_of_pebbles(circle_list, mouse_pos, num_flag_up, num_flag_down)
 
@@ -107,11 +107,11 @@ def draw_nr_of_pebbles(circle_list, mouse_pos, num_flag_up, num_flag_down):
         if circle.is_hovered_over(mouse_pos):
             nr_of_pebbles = circle.get_nr_of_pebbles()
             rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
-            if 0 < circle.get_number() <= 6:
+            if 7 < circle.get_number() <= 13:
                 screen.blit(num_flag_up,
                             (circle.x - num_flag_up.get_width() / 2, circle.y - 1.75 * num_flag_up.get_height()))
                 screen.blit(rendered_number, (circle.x - 5, circle.y - 130))
-            elif 7 <= circle.get_number() < 13:
+            elif 0 < circle.get_number() <= 6:
                 screen.blit(num_flag_down,
                             (circle.x - num_flag_down.get_width() / 2, circle.y + 1.5 * num_flag_down.get_height() / 2))
                 screen.blit(rendered_number, (circle.x - 5, circle.y + 90))
@@ -157,7 +157,7 @@ def main():
     make_circles()
     circle_list = make_circles()
     circle_list[0].remove_pebbles()
-    circle_list[13].remove_pebbles()
+    circle_list[7].remove_pebbles()
 
     # Testing input
     circle_list[1].remove_pebbles()
@@ -177,12 +177,24 @@ def main():
 
         draw_pebbles(circle_list)
         draw_player_flags(player_one_flag, player_two_flag, circle_list[0].get_nr_of_pebbles(),
-                          circle_list[13].get_nr_of_pebbles())
+                          circle_list[7].get_nr_of_pebbles())
         draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                for circle in circle_list:
+                    if (circle.is_hovered_over(mouse_pos) and circle.get_number() is not 0
+                            and circle.get_number() is not 7):
+                        current_pebbles = circle.get_nr_of_pebbles()
+                        circle.remove_pebbles()
+                        i = 1
+                        while current_pebbles > 0:
+                            circle_list[(circle.get_number() + i) % 14].add_pebble()
+                            current_pebbles -= 1
+                            i += 1
+
         pygame.display.flip()
 
 
