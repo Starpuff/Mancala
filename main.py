@@ -95,18 +95,22 @@ def make_circles():
     return circ0, circ1, circ2, circ3, circ4, circ5, circ6, circ7, circ8, circ9, circ10, circ11, circ12, circ13
 
 
-def draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down):
-    for circle in circle_list:
-        if circle.is_hovered_over(mouse_pos) and circle.get_number() is not 0 and circle.get_number() is not 7:
-            circle.draw_outline_hovered()
-            draw_nr_of_pebbles(circle_list, mouse_pos, num_flag_up, num_flag_down)
-
-
-def draw_nr_of_pebbles(circle_list, mouse_pos, num_flag_up, num_flag_down):
+def draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn):
     for circle in circle_list:
         if circle.is_hovered_over(mouse_pos):
-            nr_of_pebbles = circle.get_nr_of_pebbles()
-            rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
+            if player_turn == 1 and circle.get_number() > 7:
+                circle.draw_outline_hovered()
+                draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down)
+            elif player_turn == 2 and 0 < circle.get_number() <= 6:
+                circle.draw_outline_hovered()
+                draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down)
+
+
+def draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down):
+    for circle in circle_list:
+        nr_of_pebbles = circle.get_nr_of_pebbles()
+        rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
+        if circle.is_hovered_over(mouse_pos):
             if 7 < circle.get_number() <= 13:
                 screen.blit(num_flag_up,
                             (circle.x - num_flag_up.get_width() / 2, circle.y - 1.75 * num_flag_up.get_height()))
@@ -115,6 +119,20 @@ def draw_nr_of_pebbles(circle_list, mouse_pos, num_flag_up, num_flag_down):
                 screen.blit(num_flag_down,
                             (circle.x - num_flag_down.get_width() / 2, circle.y + 1.5 * num_flag_down.get_height() / 2))
                 screen.blit(rendered_number, (circle.x - 5, circle.y + 90))
+
+
+def draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn):
+    for circle in circle_list:
+        nr_of_pebbles = circle.get_nr_of_pebbles()
+        rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
+        if player_turn == 1 and 0 < circle.get_number() <= 6:
+            screen.blit(num_flag_down,
+                        (circle.x - num_flag_down.get_width() / 2, circle.y + 1.5 * num_flag_down.get_height() / 2))
+            screen.blit(rendered_number, (circle.x - 5, circle.y + 90))
+        elif player_turn == 2 and 7 < circle.get_number() <= 13:
+            screen.blit(num_flag_up,
+                        (circle.x - num_flag_up.get_width() / 2, circle.y - 1.75 * num_flag_up.get_height()))
+            screen.blit(rendered_number, (circle.x - 5, circle.y - 130))
 
 
 def draw_player_flags(player_one_flag, player_two_flag, player_one_points, player_two_points):
@@ -150,6 +168,7 @@ def draw_pebbles(circle_list):
 
 def main():
     done = False
+
     board_image, board_width, board_height = get_board()
     background_image = get_background_image()
     num_flag_up, num_flag_down, player_one_flag, player_two_flag = get_flags()
@@ -158,6 +177,8 @@ def main():
     circle_list = make_circles()
     circle_list[0].remove_pebbles()
     circle_list[7].remove_pebbles()
+
+    player_turn = 1
 
     # Testing input
     circle_list[1].remove_pebbles()
@@ -178,7 +199,8 @@ def main():
         draw_pebbles(circle_list)
         draw_player_flags(player_one_flag, player_two_flag, circle_list[0].get_nr_of_pebbles(),
                           circle_list[7].get_nr_of_pebbles())
-        draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down)
+        draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn)
+        draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
