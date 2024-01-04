@@ -189,6 +189,7 @@ def circle_is_clicked(circle_list, mouse_pos, player_turn):
                 i += 1
             new_player_turn = last_circle_handling(last_circle, circle_list, player_turn)
             return new_player_turn
+    return 0
 
 
 def last_circle_handling(last_circle, circle_list, player_turn):
@@ -201,10 +202,14 @@ def last_circle_handling(last_circle, circle_list, player_turn):
         if player_turn == 1 and 7 < last_circle.get_number() <= 13:
             opposite_circle = circle_list[14 - last_circle.get_number()]
             circle_list[0].add_n_pebbles(opposite_circle.get_nr_of_pebbles() + 1)
+            last_circle.remove_pebbles()
+            opposite_circle.remove_pebbles()
             new_player_turn = 2
         elif player_turn == 2 and 0 < last_circle.get_number() <= 6:
             opposite_circle = circle_list[14 - last_circle.get_number()]
             circle_list[7].add_n_pebbles(opposite_circle.get_nr_of_pebbles() + 1)
+            last_circle.remove_pebbles()
+            opposite_circle.remove_pebbles()
             new_player_turn = 1
     else:
         if player_turn == 1:
@@ -254,7 +259,9 @@ def main():
             if event.type == pygame.QUIT:
                 done = True
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                player_turn = circle_is_clicked(circle_list, mouse_pos, player_turn)
+                new_player_turn = circle_is_clicked(circle_list, mouse_pos, player_turn)
+                if new_player_turn != 0:
+                    player_turn = new_player_turn
 
         pygame.display.flip()
 
