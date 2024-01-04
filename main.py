@@ -217,8 +217,27 @@ def last_circle_handling(last_circle, circle_list, player_turn):
     return new_player_turn
 
 
+def load_player_turn_images(pvp):
+    if pvp:
+        player_one_turn = pygame.image.load('Images/player-one-turn.png').convert_alpha()
+        player_two_turn = pygame.image.load('Images/player-two-turn.png').convert_alpha()
+    else:
+        player_one_turn = pygame.image.load('Images/bot-turn.png').convert_alpha()
+        player_two_turn = pygame.image.load('Images/your-turn.png').convert_alpha()
+    return player_one_turn, player_two_turn
+
+
+def draw_player_turn(player_turn, player_turn_images):
+    if player_turn == 1:
+        screen.blit(player_turn_images[0], (SCREEN_WIDTH // 2 - player_turn_images[0].get_width() // 2, 0))
+    elif player_turn == 2:
+        screen.blit(player_turn_images[1], (SCREEN_WIDTH // 2 - player_turn_images[1].get_width() // 2, 0))
+
+
 def main():
     done = False
+    pvp = True
+    player_turn_images = load_player_turn_images(pvp)
 
     board_image, board_width, board_height = get_board()
     background_image = get_background_image()
@@ -229,14 +248,14 @@ def main():
     circle_list[0].remove_pebbles()
     circle_list[7].remove_pebbles()
 
-    player_turn = 1
+    player_turn = random.randint(1, 2)
 
     # Testing input
-    circle_list[1].remove_pebbles()
-    circle_list[1].add_pebble()
-    circle_list[2].remove_pebbles()
-    circle_list[2].add_pebble()
-    circle_list[2].add_pebble()
+    # circle_list[1].remove_pebbles()
+    # circle_list[1].add_pebble()
+    # circle_list[2].remove_pebbles()
+    # circle_list[2].add_pebble()
+    # circle_list[2].add_pebble()
 
     # Done testing
 
@@ -252,6 +271,8 @@ def main():
                           circle_list[7].get_nr_of_pebbles())
         draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn)
         draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn)
+
+        draw_player_turn(player_turn, player_turn_images)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
