@@ -227,17 +227,32 @@ def load_player_turn_images(pvp):
     return player_one_turn, player_two_turn
 
 
-def draw_player_turn(player_turn, player_turn_images):
+def load_player_turn_highlights():
+    player_one_highlight = pygame.image.load('Images/player-one-highlight.png').convert_alpha()
+    player_two_highlight = pygame.image.load('Images/player-two-highlight.png').convert_alpha()
+    highlight_width = player_one_highlight.get_width() * 0.75
+    highlight_height = player_one_highlight.get_height() * 0.75
+    player_one_highlight = pygame.transform.scale(player_one_highlight, (int(highlight_width), int(highlight_height)))
+    player_two_highlight = pygame.transform.scale(player_two_highlight, (int(highlight_width), int(highlight_height)))
+    return player_one_highlight, player_two_highlight
+
+
+def draw_player_turn(player_turn, player_turn_images, player_turn_highlights):
     if player_turn == 1:
         screen.blit(player_turn_images[0], (SCREEN_WIDTH // 2 - player_turn_images[0].get_width() // 2, 0))
+        screen.blit(player_turn_highlights[0], (SCREEN_WIDTH // 2 - player_turn_highlights[0].get_width() // 2,
+                                                SCREEN_HEIGHT // 2 - player_turn_highlights[0].get_height() // 2))
     elif player_turn == 2:
         screen.blit(player_turn_images[1], (SCREEN_WIDTH // 2 - player_turn_images[1].get_width() // 2, 0))
+        screen.blit(player_turn_highlights[1], (SCREEN_WIDTH // 2 - player_turn_highlights[1].get_width() // 2,
+                                                SCREEN_HEIGHT // 2 - player_turn_highlights[1].get_height() // 2))
 
 
 def main():
     done = False
     pvp = True
     player_turn_images = load_player_turn_images(pvp)
+    player_turn_highlights = load_player_turn_highlights()
 
     board_image, board_width, board_height = get_board()
     background_image = get_background_image()
@@ -272,7 +287,7 @@ def main():
         draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn)
         draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn)
 
-        draw_player_turn(player_turn, player_turn_images)
+        draw_player_turn(player_turn, player_turn_images, player_turn_highlights)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
