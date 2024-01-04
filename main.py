@@ -193,7 +193,6 @@ def circle_is_clicked(circle_list, mouse_pos, player_turn):
 
 
 def last_circle_handling(last_circle, circle_list, player_turn):
-    new_player_turn = player_turn
     if last_circle.get_number() == 0 and player_turn == 1:
         new_player_turn = 1
     elif last_circle.get_number() == 7 and player_turn == 2:
@@ -211,11 +210,10 @@ def last_circle_handling(last_circle, circle_list, player_turn):
             last_circle.remove_pebbles()
             opposite_circle.remove_pebbles()
             new_player_turn = 1
-    else:
-        if player_turn == 1:
-            new_player_turn = 2
         else:
-            new_player_turn = 1
+            new_player_turn = 3 - player_turn
+    else:
+        new_player_turn = 3 - player_turn
     return new_player_turn
 
 
