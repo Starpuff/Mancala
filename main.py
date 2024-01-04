@@ -46,6 +46,9 @@ class Circle:
     def add_pebble(self):
         self.pebbles += 1
 
+    def add_n_pebbles(self, n):
+        self.pebbles += n
+
     def get_nr_of_pebbles(self):
         return self.pebbles
 
@@ -95,18 +98,22 @@ def make_circles():
     return circ0, circ1, circ2, circ3, circ4, circ5, circ6, circ7, circ8, circ9, circ10, circ11, circ12, circ13
 
 
-def draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down):
-    for circle in circle_list:
-        if circle.is_hovered_over(mouse_pos) and circle.get_number() is not 0 and circle.get_number() is not 7:
-            circle.draw_outline_hovered()
-            draw_nr_of_pebbles(circle_list, mouse_pos, num_flag_up, num_flag_down)
-
-
-def draw_nr_of_pebbles(circle_list, mouse_pos, num_flag_up, num_flag_down):
+def draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn):
     for circle in circle_list:
         if circle.is_hovered_over(mouse_pos):
-            nr_of_pebbles = circle.get_nr_of_pebbles()
-            rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
+            if player_turn == 1 and circle.get_number() > 7:
+                circle.draw_outline_hovered()
+                draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down)
+            elif player_turn == 2 and 0 < circle.get_number() <= 6:
+                circle.draw_outline_hovered()
+                draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down)
+
+
+def draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down):
+    for circle in circle_list:
+        nr_of_pebbles = circle.get_nr_of_pebbles()
+        rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
+        if circle.is_hovered_over(mouse_pos):
             if 7 < circle.get_number() <= 13:
                 screen.blit(num_flag_up,
                             (circle.x - num_flag_up.get_width() / 2, circle.y - 1.75 * num_flag_up.get_height()))
@@ -115,6 +122,20 @@ def draw_nr_of_pebbles(circle_list, mouse_pos, num_flag_up, num_flag_down):
                 screen.blit(num_flag_down,
                             (circle.x - num_flag_down.get_width() / 2, circle.y + 1.5 * num_flag_down.get_height() / 2))
                 screen.blit(rendered_number, (circle.x - 5, circle.y + 90))
+
+
+def draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn):
+    for circle in circle_list:
+        nr_of_pebbles = circle.get_nr_of_pebbles()
+        rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
+        if player_turn == 1 and 0 < circle.get_number() <= 6:
+            screen.blit(num_flag_down,
+                        (circle.x - num_flag_down.get_width() / 2, circle.y + 1.5 * num_flag_down.get_height() / 2))
+            screen.blit(rendered_number, (circle.x - 5, circle.y + 90))
+        elif player_turn == 2 and 7 < circle.get_number() <= 13:
+            screen.blit(num_flag_up,
+                        (circle.x - num_flag_up.get_width() / 2, circle.y - 1.75 * num_flag_up.get_height()))
+            screen.blit(rendered_number, (circle.x - 5, circle.y - 130))
 
 
 def draw_player_flags(player_one_flag, player_two_flag, player_one_points, player_two_points):
@@ -148,8 +169,57 @@ def draw_pebbles(circle_list):
                                              - pebble_img_list[2].get_height() / 2))
 
 
+def circle_is_clicked(circle_list, mouse_pos, player_turn):
+    for circle in circle_list:
+        if circle.is_hovered_over(mouse_pos) and ((player_turn == 1 and 7 < circle.get_number() <= 13) or
+                                                  (player_turn == 2 and 0 < circle.get_number() <= 6)):
+            current_pebbles = circle.get_nr_of_pebbles()
+            circle.remove_pebbles()
+            i = 1
+            if current_pebbles == 0:
+                return player_turn
+            while current_pebbles > 0:
+                if player_turn == 1 and (circle.get_number() + i) % 14 == 7:
+                    i += 1
+                elif player_turn == 2 and (circle.get_number() + i) % 14 == 0:
+                    i += 1
+                last_circle = circle_list[(circle.get_number() + i) % 14]
+                last_circle.add_pebble()
+                current_pebbles -= 1
+                i += 1
+            new_player_turn = last_circle_handling(last_circle, circle_list, player_turn)
+            return new_player_turn
+    return 0
+
+
+def last_circle_handling(last_circle, circle_list, player_turn):
+    if last_circle.get_number() == 0 and player_turn == 1:
+        new_player_turn = 1
+    elif last_circle.get_number() == 7 and player_turn == 2:
+        new_player_turn = 2
+    elif last_circle.get_nr_of_pebbles() == 1:
+        if player_turn == 1 and 7 < last_circle.get_number() <= 13:
+            opposite_circle = circle_list[14 - last_circle.get_number()]
+            circle_list[0].add_n_pebbles(opposite_circle.get_nr_of_pebbles() + 1)
+            last_circle.remove_pebbles()
+            opposite_circle.remove_pebbles()
+            new_player_turn = 2
+        elif player_turn == 2 and 0 < last_circle.get_number() <= 6:
+            opposite_circle = circle_list[14 - last_circle.get_number()]
+            circle_list[7].add_n_pebbles(opposite_circle.get_nr_of_pebbles() + 1)
+            last_circle.remove_pebbles()
+            opposite_circle.remove_pebbles()
+            new_player_turn = 1
+        else:
+            new_player_turn = 3 - player_turn
+    else:
+        new_player_turn = 3 - player_turn
+    return new_player_turn
+
+
 def main():
     done = False
+
     board_image, board_width, board_height = get_board()
     background_image = get_background_image()
     num_flag_up, num_flag_down, player_one_flag, player_two_flag = get_flags()
@@ -158,6 +228,8 @@ def main():
     circle_list = make_circles()
     circle_list[0].remove_pebbles()
     circle_list[7].remove_pebbles()
+
+    player_turn = 1
 
     # Testing input
     circle_list[1].remove_pebbles()
@@ -178,22 +250,16 @@ def main():
         draw_pebbles(circle_list)
         draw_player_flags(player_one_flag, player_two_flag, circle_list[0].get_nr_of_pebbles(),
                           circle_list[7].get_nr_of_pebbles())
-        draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down)
+        draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn)
+        draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                for circle in circle_list:
-                    if (circle.is_hovered_over(mouse_pos) and circle.get_number() is not 0
-                            and circle.get_number() is not 7):
-                        current_pebbles = circle.get_nr_of_pebbles()
-                        circle.remove_pebbles()
-                        i = 1
-                        while current_pebbles > 0:
-                            circle_list[(circle.get_number() + i) % 14].add_pebble()
-                            current_pebbles -= 1
-                            i += 1
+                new_player_turn = circle_is_clicked(circle_list, mouse_pos, player_turn)
+                if new_player_turn != 0:
+                    player_turn = new_player_turn
 
         pygame.display.flip()
 
