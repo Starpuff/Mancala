@@ -8,7 +8,9 @@ SCREEN_HEIGHT = 720
 
 TRANSPARENT = (0, 0, 0, 0)
 
-FONT = pygame.font.SysFont("Arial", 30)
+# FONT = pygame.font.SysFont("Arial", 30)
+FONT = pygame.font.Font('Fonts/LEMONMILK-Medium.otf', 30)
+BOLD_FONT = pygame.font.Font('Fonts/Unigeo64-Bold-trial.ttf', 30)
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Mancala")
@@ -109,19 +111,26 @@ def draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, pla
                 draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down)
 
 
+def draw_flag_numbers(circle, nr_of_pebbles, rendered_number):
+    y_addition = 90
+    if 7 < circle.get_number() <= 13:
+        y_addition = -130
+    screen.blit(rendered_number, (circle.x - rendered_number.get_width() / 2, circle.y + y_addition))
+
+
 def draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down):
     for circle in circle_list:
         nr_of_pebbles = circle.get_nr_of_pebbles()
         rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
         if circle.is_hovered_over(mouse_pos):
             if 7 < circle.get_number() <= 13:
-                screen.blit(num_flag_up,
-                            (circle.x - num_flag_up.get_width() / 2, circle.y - 1.75 * num_flag_up.get_height()))
-                screen.blit(rendered_number, (circle.x - 5, circle.y - 130))
+                screen.blit(num_flag_up, (circle.x - num_flag_up.get_width() / 2,
+                                          circle.y - 1.75 * num_flag_up.get_height()))
+                draw_flag_numbers(circle, nr_of_pebbles, rendered_number)
             elif 0 < circle.get_number() <= 6:
-                screen.blit(num_flag_down,
-                            (circle.x - num_flag_down.get_width() / 2, circle.y + 1.5 * num_flag_down.get_height() / 2))
-                screen.blit(rendered_number, (circle.x - 5, circle.y + 90))
+                screen.blit(num_flag_down, (circle.x - num_flag_down.get_width() / 2,
+                                            circle.y + 1.5 * num_flag_down.get_height() / 2))
+                draw_flag_numbers(circle, nr_of_pebbles, rendered_number)
 
 
 def draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn):
@@ -131,17 +140,20 @@ def draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn):
         if player_turn == 1 and 0 < circle.get_number() <= 6:
             screen.blit(num_flag_down,
                         (circle.x - num_flag_down.get_width() / 2, circle.y + 1.5 * num_flag_down.get_height() / 2))
-            screen.blit(rendered_number, (circle.x - 5, circle.y + 90))
+            draw_flag_numbers(circle, nr_of_pebbles, rendered_number)
         elif player_turn == 2 and 7 < circle.get_number() <= 13:
             screen.blit(num_flag_up,
                         (circle.x - num_flag_up.get_width() / 2, circle.y - 1.75 * num_flag_up.get_height()))
-            screen.blit(rendered_number, (circle.x - 5, circle.y - 130))
+            draw_flag_numbers(circle, nr_of_pebbles, rendered_number)
 
 
 def draw_player_flags(player_one_flag, player_two_flag, player_one_points, player_two_points):
     screen.blit(player_one_flag, (16, 250))
     render_player_one_points = FONT.render(str(player_one_points), True, "white")
-    screen.blit(render_player_one_points, (90, 263))
+    if player_one_points > 9:
+        screen.blit(render_player_one_points, (68, 263))
+    else:
+        screen.blit(render_player_one_points, (80, 263))
     screen.blit(player_two_flag, (SCREEN_WIDTH - player_two_flag.get_width() - 16, 420))
     render_player_two_points = FONT.render(str(player_two_points), True, "white")
     screen.blit(render_player_two_points, (SCREEN_WIDTH - 100, 433))
@@ -237,7 +249,8 @@ def load_player_turn_highlights():
     return player_one_highlight, player_two_highlight
 
 
-def draw_player_turn(player_turn, player_turn_images, player_turn_highlights):
+def draw_player_turn(player_turn, player_turn_images, player_turn_highlights, pvp):
+    draw_hint(player_turn, pvp)
     if player_turn == 1:
         screen.blit(player_turn_images[0], (SCREEN_WIDTH // 2 - player_turn_images[0].get_width() // 2, 0))
         screen.blit(player_turn_highlights[0], (SCREEN_WIDTH // 2 - player_turn_highlights[0].get_width() // 2,
@@ -246,6 +259,16 @@ def draw_player_turn(player_turn, player_turn_images, player_turn_highlights):
         screen.blit(player_turn_images[1], (SCREEN_WIDTH // 2 - player_turn_images[1].get_width() // 2, 0))
         screen.blit(player_turn_highlights[1], (SCREEN_WIDTH // 2 - player_turn_highlights[1].get_width() // 2,
                                                 SCREEN_HEIGHT // 2 - player_turn_highlights[1].get_height() // 2))
+
+
+def draw_hint(player_turn, pvp):
+    if player_turn == 1 and pvp is True:
+        hint = "Player I : Select a circle from the top row"
+    else:
+        hint = "Player II : Select a circle from the bottom row"
+    rendered_hint = BOLD_FONT.render(hint, True, "white")
+    screen.blit(rendered_hint, (SCREEN_WIDTH // 2 - rendered_hint.get_width() // 2,
+                                SCREEN_HEIGHT - rendered_hint.get_height() - 15))
 
 
 def main():
@@ -265,7 +288,10 @@ def main():
 
     player_turn = random.randint(1, 2)
 
-    # Testing input
+    # Testing
+    # circle_list[10].add_n_pebbles(12)
+    # circle_list[4].add_n_pebbles(12)
+    # circle_list[0].add_n_pebbles(12)
     # circle_list[1].remove_pebbles()
     # circle_list[1].add_pebble()
     # circle_list[2].remove_pebbles()
@@ -287,7 +313,7 @@ def main():
         draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn)
         draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn)
 
-        draw_player_turn(player_turn, player_turn_images, player_turn_highlights)
+        draw_player_turn(player_turn, player_turn_images, player_turn_highlights, pvp)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
