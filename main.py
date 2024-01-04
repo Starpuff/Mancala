@@ -11,6 +11,7 @@ TRANSPARENT = (0, 0, 0, 0)
 # FONT = pygame.font.SysFont("Arial", 30)
 FONT = pygame.font.Font('Fonts/LEMONMILK-Medium.otf', 30)
 BOLD_FONT = pygame.font.Font('Fonts/Unigeo64-Bold-trial.ttf', 30)
+WINNER_FONT = pygame.font.Font('Fonts/Unigeo64-Bold-trial.ttf', 60)
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Mancala")
@@ -27,12 +28,6 @@ class Circle:
         self.x = x
         self.y = y
         self.pebbles = 4
-
-    def get_surface(self):
-        return pygame.Surface((self.diameter, self.diameter), pygame.SRCALPHA)
-
-    def draw(self):
-        pygame.draw.circle(self.get_surface(), TRANSPARENT, (self.radius, self.radius), self.radius)
 
     def is_hovered_over(self, mouse_pos):
         distance_from_center = ((self.x - mouse_pos[0]) ** 2 + (self.y - mouse_pos[1]) ** 2) ** 0.5
@@ -271,6 +266,61 @@ def draw_hint(player_turn, pvp):
                                 SCREEN_HEIGHT - rendered_hint.get_height() - 15))
 
 
+def is_final_state(circle_list):
+    pebbles_row_1 = 0
+    pebbles_row_2 = 0
+    for circle in circle_list:
+        if 0 < circle.get_number() <= 6 and circle.get_nr_of_pebbles() is not 0:
+            pebbles_row_2 += 1
+        elif 7 < circle.get_number() <= 13 and circle.get_nr_of_pebbles() is not 0:
+            pebbles_row_1 += 1
+    if pebbles_row_1 == 0:
+        return 1
+    elif pebbles_row_2 == 0:
+        return 2
+    return 0
+
+
+def distribute_last_pebbles(circle_list, final_state):
+    if final_state == 1:
+        for circle in circle_list:
+            if 0 < circle.get_number() <= 6:
+                circle_list[7].add_n_pebbles(circle.get_nr_of_pebbles())
+                circle.remove_pebbles()
+    elif final_state == 2:
+        for circle in circle_list:
+            if 7 < circle.get_number() <= 13:
+                circle_list[0].add_n_pebbles(circle.get_nr_of_pebbles())
+                circle.remove_pebbles()
+
+
+def draw_winner(player_one_points, player_two_points, pvp):
+    if player_one_points > player_two_points and pvp:
+        winner = "Player I wins!"
+    elif player_one_points < player_two_points and pvp:
+        winner = "Player II wins!"
+    elif player_one_points > player_two_points and not pvp:
+        winner = "Bot wins!"
+    elif player_one_points < player_two_points and not pvp:
+        winner = "You win!"
+    else:
+        winner = "It's a tie!"
+
+    # coat_color = (0, 0, 0, 15)
+    # pygame.draw.rect(screen, coat_color, (0, 0, SCREEN_WIDTH-100, SCREEN_HEIGHT-100))
+
+    winner_banner = pygame.image.load('Images/winner-banner.png').convert_alpha()
+    banner_width = winner_banner.get_width() * 0.75
+    banner_height = winner_banner.get_height() * 0.75
+    winner_banner = pygame.transform.scale(winner_banner, (int(banner_width), int(banner_height)))
+
+    screen.blit(winner_banner, (SCREEN_WIDTH // 2 - winner_banner.get_width() // 2,
+                                SCREEN_HEIGHT // 2 - winner_banner.get_height() // 2))
+    rendered_winner = WINNER_FONT.render(winner, True, "white")
+    screen.blit(rendered_winner, (SCREEN_WIDTH // 2 - rendered_winner.get_width() // 2,
+                                  SCREEN_HEIGHT // 2 - rendered_winner.get_height() // 2))
+
+
 def main():
     done = False
     pvp = True
@@ -289,6 +339,8 @@ def main():
     player_turn = random.randint(1, 2)
 
     # Testing
+    for i in range(1, 6):
+        circle_list[i].remove_pebbles()
     # circle_list[10].add_n_pebbles(12)
     # circle_list[4].add_n_pebbles(12)
     # circle_list[0].add_n_pebbles(12)
@@ -322,6 +374,11 @@ def main():
                 new_player_turn = circle_is_clicked(circle_list, mouse_pos, player_turn)
                 if new_player_turn != 0:
                     player_turn = new_player_turn
+
+        final_state = is_final_state(circle_list)
+        if final_state is not 0:
+            distribute_last_pebbles(circle_list, final_state)
+            draw_winner(circle_list[0].get_nr_of_pebbles(), circle_list[7].get_nr_of_pebbles(), pvp)
 
         pygame.display.flip()
 
