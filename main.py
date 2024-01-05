@@ -13,6 +13,7 @@ FONT = pygame.font.Font('Fonts/LEMONMILK-Medium.otf', 30)
 MEDIUM_FONT = pygame.font.Font('Fonts/LEMONMILK-Regular.otf', 30)
 BOLD_FONT = pygame.font.Font('Fonts/Unigeo64-Bold-trial.ttf', 30)
 WINNER_FONT = pygame.font.Font('Fonts/Unigeo64-Bold-trial.ttf', 60)
+TITLE_FONT = pygame.font.Font('Fonts/CameraObscuraDEMO.otf', 160)
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Mancala")
@@ -368,45 +369,115 @@ def main():
 
     # Done testing
 
-    while not done:
+    # while not done:
+    #     screen.blit(background_image, (0, 0))
+    #     board_position = (SCREEN_WIDTH // 2 - board_image.get_width() // 2,
+    #                       SCREEN_HEIGHT // 2 - board_image.get_height() // 2)
+    #     screen.blit(board_image, board_position)
+    #     mouse_pos = pygame.mouse.get_pos()
+    #
+    #     draw_pebbles(circle_list)
+    #     draw_player_flags(player_one_flag, player_two_flag, circle_list[0].get_nr_of_pebbles(),
+    #                       circle_list[7].get_nr_of_pebbles())
+    #     draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn)
+    #     draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn)
+    #
+    #     draw_player_turn(player_turn, player_turn_images, player_turn_highlights, pvp)
+    #
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             done = True
+    #         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+    #             new_player_turn = circle_is_clicked(circle_list, mouse_pos, player_turn)
+    #             if new_player_turn != 0:
+    #                 player_turn = new_player_turn
+    #
+    #     final_state = is_final_state(circle_list)
+    #     if final_state != 0:
+    #         distribute_last_pebbles(circle_list, final_state)
+    #         done = True
+    #
+    #     pygame.display.flip()
+    #
+    # winner_screen = True
+    # while winner_screen:
+    #     screen.blit(background_image, (0, 0))
+    #     draw_winner(circle_list[0].get_nr_of_pebbles(), circle_list[7].get_nr_of_pebbles(), pvp)
+    #
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             winner_screen = False
+
+    # pygame.display.flip()
+
+    menu_screen = True
+    while menu_screen:
         screen.blit(background_image, (0, 0))
-        board_position = (SCREEN_WIDTH // 2 - board_image.get_width() // 2,
-                          SCREEN_HEIGHT // 2 - board_image.get_height() // 2)
-        screen.blit(board_image, board_position)
         mouse_pos = pygame.mouse.get_pos()
 
-        draw_pebbles(circle_list)
-        draw_player_flags(player_one_flag, player_two_flag, circle_list[0].get_nr_of_pebbles(),
-                          circle_list[7].get_nr_of_pebbles())
-        draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn)
-        draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn)
+        title = "MANCALA"
+        rendered_title = TITLE_FONT.render(title, True, "white")
+        rendered_title_black = TITLE_FONT.render(title, True, "black")
 
-        draw_player_turn(player_turn, player_turn_images, player_turn_highlights, pvp)
+        screen.blit(rendered_title_black, (SCREEN_WIDTH // 2 - rendered_title.get_width() // 2 - 5,
+                                            SCREEN_HEIGHT // 2 - rendered_title.get_height() // 2 - 105))
+        screen.blit(rendered_title_black, (SCREEN_WIDTH // 2 - rendered_title.get_width() // 2 + 5,
+                                           SCREEN_HEIGHT // 2 - rendered_title.get_height() // 2 - 95))
+        screen.blit(rendered_title, (SCREEN_WIDTH // 2 - rendered_title.get_width() // 2,
+                                        SCREEN_HEIGHT // 2 - rendered_title.get_height() // 2 - 100))
+
+        button_width = 150
+        button_height = 50
+        pygame.draw.rect(screen, "black", (SCREEN_WIDTH // 2 - button_width - 55, SCREEN_HEIGHT // 2 + 70,
+                                             button_width, button_height))
+        pygame.draw.rect(screen, "black", (SCREEN_WIDTH // 2 - button_width - 45, SCREEN_HEIGHT // 2 + 80,
+                                             button_width, button_height))
+        pygame.draw.rect(screen, "white", (SCREEN_WIDTH // 2 - button_width - 50, SCREEN_HEIGHT // 2 + 75,
+                                           button_width, button_height))
+
+        pygame.draw.rect(screen, "black", (SCREEN_WIDTH // 2 + 45, SCREEN_HEIGHT // 2 + 70,
+                                             button_width, button_height))
+        pygame.draw.rect(screen, "black", (SCREEN_WIDTH // 2 + 55, SCREEN_HEIGHT // 2 + 80,
+                                             button_width, button_height))
+        pygame.draw.rect(screen, "white", (SCREEN_WIDTH // 2 + 50, SCREEN_HEIGHT // 2 + 75,
+                                           button_width, button_height))
+
+        pvp_button_text = "PvP"
+        pvp_button_text_rendered = FONT.render(pvp_button_text, True, "black")
+        pvp_button_text_rendered_white = FONT.render(pvp_button_text, True, "white")
+        pve_button_text = "PvE"
+        pve_button_text_rendered = FONT.render(pve_button_text, True, "black")
+        pve_button_text_rendered_white = FONT.render(pve_button_text, True, "white")
+
+        button_text_color = (227, 80, 7)
+
+        screen.blit(pvp_button_text_rendered, (SCREEN_WIDTH // 2 - button_width // 2 - 50 -
+                                               pvp_button_text_rendered.get_width() // 2, SCREEN_HEIGHT // 2 +
+                                               80))
+        screen.blit(pve_button_text_rendered, (SCREEN_WIDTH // 2 + button_width // 2 + 50 -
+                                               pve_button_text_rendered.get_width() // 2, SCREEN_HEIGHT // 2 +
+                                               80))
+
+        if ((mouse_pos[0] > SCREEN_WIDTH // 2 - button_width - 50) and (mouse_pos[0] < SCREEN_WIDTH // 2 - 50) and
+                (mouse_pos[1] > SCREEN_HEIGHT // 2 + 75) and (mouse_pos[1] < SCREEN_HEIGHT // 2 + 75 + button_height)):
+            pygame.draw.rect(screen, button_text_color, (SCREEN_WIDTH // 2 - button_width - 50, SCREEN_HEIGHT // 2 + 75,
+                                                            button_width, button_height))
+            screen.blit(pvp_button_text_rendered_white, (SCREEN_WIDTH // 2 - button_width // 2 - 50 -
+                                                            pvp_button_text_rendered.get_width() // 2, SCREEN_HEIGHT // 2
+                                                         + 80))
+        elif ((mouse_pos[0] > SCREEN_WIDTH // 2 + 50) and (mouse_pos[0] < SCREEN_WIDTH // 2 + button_width + 50) and
+                (mouse_pos[1] > SCREEN_HEIGHT // 2 + 75) and (mouse_pos[1] < SCREEN_HEIGHT // 2 + 75 + button_height)):
+            pygame.draw.rect(screen, button_text_color, (SCREEN_WIDTH // 2 + 50, SCREEN_HEIGHT // 2 + 75,
+                                                            button_width, button_height))
+            screen.blit(pve_button_text_rendered_white, (SCREEN_WIDTH // 2 + button_width // 2 + 50 -
+                                                            pve_button_text_rendered.get_width() // 2, SCREEN_HEIGHT // 2
+                                                         + 80))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                done = True
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                new_player_turn = circle_is_clicked(circle_list, mouse_pos, player_turn)
-                if new_player_turn != 0:
-                    player_turn = new_player_turn
-
-        final_state = is_final_state(circle_list)
-        if final_state != 0:
-            distribute_last_pebbles(circle_list, final_state)
-            done = True
+                menu_screen = False
 
         pygame.display.flip()
-
-    winner_screen = True
-    while winner_screen:
-        screen.blit(background_image, (0, 0))
-        draw_winner(circle_list[0].get_nr_of_pebbles(), circle_list[7].get_nr_of_pebbles(), pvp)
-        pygame.display.flip()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                winner_screen = False
 
 
 if __name__ == '__main__':
