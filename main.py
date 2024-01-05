@@ -587,8 +587,8 @@ def setup(circle_list):
     circle_list[7].remove_pebbles()
 
     # Testing
-    for i in range(1, 6):
-        circle_list[i].remove_pebbles()
+    # for i in range(1, 6):
+    #     circle_list[i].remove_pebbles()
 
 
 def main():
