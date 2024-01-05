@@ -545,6 +545,40 @@ def draw_winner_screen(winner_screen, background_image, circle_list, pvp):
         pygame.display.flip()
 
 
+def bot_turn(circle_list):
+    bot_selected = 0
+    while not bot_selected:
+        bot_selected = random.randint(8, 13)
+        for circle in circle_list:
+            if circle.get_number() == bot_selected and circle.get_nr_of_pebbles() != 0:
+                highlight_bot_selected(circle)
+                return circle
+        bot_selected = 0
+
+
+def highlight_bot_selected(circle):
+    for i in range(1, 5):
+        circle.draw_outline_hovered()
+        pygame.time.wait(200)
+        pygame.display.flip()
+
+
+def bot_selection(circle_list, bot_selected):
+    current_pebbles = bot_selected.get_nr_of_pebbles()
+    bot_selected.remove_pebbles()
+    i = 1
+    last_circle = bot_selected
+    while current_pebbles > 0:
+        if (bot_selected.get_number() + i) % 14 == 7:
+            i += 1
+        last_circle = circle_list[(bot_selected.get_number() + i) % 14]
+        last_circle.add_pebble()
+        current_pebbles -= 1
+        i += 1
+    new_player_turn = last_circle_handling(last_circle, circle_list, 1)
+    return new_player_turn
+
+
 def draw_game_screen(playing, background_image, board_image, circle_list, player_turn, player_turn_images,
                      player_turn_highlights, num_flag_up, num_flag_down, player_one_flag, player_two_flag, pvp):
     while playing:
@@ -559,6 +593,10 @@ def draw_game_screen(playing, background_image, board_image, circle_list, player
                           circle_list[7].get_nr_of_pebbles())
         draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn)
         draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn)
+
+        if not pvp and player_turn == 1:
+            bot_selected = bot_turn(circle_list)
+            player_turn = bot_selection(circle_list, bot_selected)
 
         draw_player_turn(player_turn, player_turn_images, player_turn_highlights, pvp)
 
