@@ -271,10 +271,11 @@ def is_final_state(circle_list):
     pebbles_row_1 = 0
     pebbles_row_2 = 0
     for circle in circle_list:
-        if 0 < circle.get_number() <= 6 and circle.get_nr_of_pebbles() is not 0:
-            pebbles_row_2 += 1
-        elif 7 < circle.get_number() <= 13 and circle.get_nr_of_pebbles() is not 0:
-            pebbles_row_1 += 1
+        if circle.get_nr_of_pebbles() != 0:
+            if 0 < circle.get_number() <= 6:
+                pebbles_row_2 += 1
+            elif 7 < circle.get_number() <= 13:
+                pebbles_row_1 += 1
     if pebbles_row_1 == 0:
         return 1
     elif pebbles_row_2 == 0:
@@ -331,9 +332,9 @@ def draw_winner(player_one_points, player_two_points, pvp):
     screen.blit(rendered_winner, (SCREEN_WIDTH // 2 - rendered_winner.get_width() // 2,
                                   SCREEN_HEIGHT // 2 - rendered_winner.get_height() // 2 - 30))
     screen.blit(rendered_player_one_text, (SCREEN_WIDTH // 2 - rendered_player_one_text.get_width() // 2,
-                                           SCREEN_HEIGHT // 2 - rendered_player_one_text.get_height() // 2 + 60))
+                                           SCREEN_HEIGHT // 2 - rendered_player_one_text.get_height() // 2 + 70))
     screen.blit(rendered_player_two_text, (SCREEN_WIDTH // 2 - rendered_player_two_text.get_width() // 2,
-                                           SCREEN_HEIGHT // 2 - rendered_player_two_text.get_height() // 2 + 90))
+                                           SCREEN_HEIGHT // 2 - rendered_player_two_text.get_height() // 2 + 100))
 
 
 def main():
@@ -391,7 +392,7 @@ def main():
                     player_turn = new_player_turn
 
         final_state = is_final_state(circle_list)
-        if final_state is not 0:
+        if final_state != 0:
             distribute_last_pebbles(circle_list, final_state)
             done = True
 
