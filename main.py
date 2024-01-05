@@ -557,7 +557,7 @@ def bot_turn(circle_list):
 
 
 def highlight_bot_selected(circle):
-    for i in range(1, 5):
+    for i in range(1, 10):
         circle.draw_outline_hovered()
         pygame.time.wait(200)
         pygame.display.flip()
@@ -595,6 +595,7 @@ def draw_game_screen(playing, background_image, board_image, circle_list, player
         draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn)
 
         if not pvp and player_turn == 1:
+            draw_opponent_flags(circle_list, num_flag_up, num_flag_down, 2)
             bot_selected = bot_turn(circle_list)
             player_turn = bot_selection(circle_list, bot_selected)
 
