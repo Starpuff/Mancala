@@ -10,6 +10,7 @@ TRANSPARENT = (0, 0, 0, 0)
 
 # FONT = pygame.font.SysFont("Arial", 30)
 FONT = pygame.font.Font('Fonts/LEMONMILK-Medium.otf', 30)
+MEDIUM_FONT = pygame.font.Font('Fonts/LEMONMILK-Regular.otf', 30)
 BOLD_FONT = pygame.font.Font('Fonts/Unigeo64-Bold-trial.ttf', 30)
 WINNER_FONT = pygame.font.Font('Fonts/Unigeo64-Bold-trial.ttf', 60)
 
@@ -306,6 +307,13 @@ def draw_winner(player_one_points, player_two_points, pvp):
     else:
         winner = "It's a tie!"
 
+    if pvp:
+        player_one_text = "Player I" + " : " + str(player_one_points) + " points"
+        player_two_text = "Player II" + " : " + str(player_two_points) + " points"
+    else:
+        player_one_text = "Bot" + " : " + str(player_one_points)
+        player_two_text = "You" + " : " + str(player_two_points)
+
     # coat_color = (0, 0, 0, 15)
     # pygame.draw.rect(screen, coat_color, (0, 0, SCREEN_WIDTH-100, SCREEN_HEIGHT-100))
 
@@ -316,9 +324,16 @@ def draw_winner(player_one_points, player_two_points, pvp):
 
     screen.blit(winner_banner, (SCREEN_WIDTH // 2 - winner_banner.get_width() // 2,
                                 SCREEN_HEIGHT // 2 - winner_banner.get_height() // 2))
+
     rendered_winner = WINNER_FONT.render(winner, True, "white")
+    rendered_player_one_text = MEDIUM_FONT.render(player_one_text, True, "white")
+    rendered_player_two_text = MEDIUM_FONT.render(player_two_text, True, "white")
     screen.blit(rendered_winner, (SCREEN_WIDTH // 2 - rendered_winner.get_width() // 2,
-                                  SCREEN_HEIGHT // 2 - rendered_winner.get_height() // 2))
+                                  SCREEN_HEIGHT // 2 - rendered_winner.get_height() // 2 - 30))
+    screen.blit(rendered_player_one_text, (SCREEN_WIDTH // 2 - rendered_player_one_text.get_width() // 2,
+                                           SCREEN_HEIGHT // 2 - rendered_player_one_text.get_height() // 2 + 60))
+    screen.blit(rendered_player_two_text, (SCREEN_WIDTH // 2 - rendered_player_two_text.get_width() // 2,
+                                           SCREEN_HEIGHT // 2 - rendered_player_two_text.get_height() // 2 + 90))
 
 
 def main():
@@ -354,9 +369,9 @@ def main():
 
     while not done:
         screen.blit(background_image, (0, 0))
-        overlay_position = (SCREEN_WIDTH // 2 - board_image.get_width() // 2,
-                            SCREEN_HEIGHT // 2 - board_image.get_height() // 2)
-        screen.blit(board_image, overlay_position)
+        board_position = (SCREEN_WIDTH // 2 - board_image.get_width() // 2,
+                          SCREEN_HEIGHT // 2 - board_image.get_height() // 2)
+        screen.blit(board_image, board_position)
         mouse_pos = pygame.mouse.get_pos()
 
         draw_pebbles(circle_list)
@@ -378,9 +393,19 @@ def main():
         final_state = is_final_state(circle_list)
         if final_state is not 0:
             distribute_last_pebbles(circle_list, final_state)
-            draw_winner(circle_list[0].get_nr_of_pebbles(), circle_list[7].get_nr_of_pebbles(), pvp)
+            done = True
 
         pygame.display.flip()
+
+    winner_screen = True
+    while winner_screen:
+        screen.blit(background_image, (0, 0))
+        draw_winner(circle_list[0].get_nr_of_pebbles(), circle_list[7].get_nr_of_pebbles(), pvp)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                winner_screen = False
 
 
 if __name__ == '__main__':
