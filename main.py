@@ -6,9 +6,8 @@ pygame.init()
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
-TRANSPARENT = (0, 0, 0, 0)
-
 # FONT = pygame.font.SysFont("Arial", 30)
+"""Fonts used in the game:"""
 FONT = pygame.font.Font('Fonts/LEMONMILK-Medium.otf', 30)
 MEDIUM_FONT = pygame.font.Font('Fonts/LEMONMILK-Regular.otf', 30)
 BOLD_FONT = pygame.font.Font('Fonts/Unigeo64-Bold-trial.ttf', 30)
@@ -20,48 +19,71 @@ pygame.display.set_caption("Mancala")
 
 
 class Circle:
+    """ Class for the circles on the board.
+    Each circle represents a hole in the board. That includes the two holes for the player's points.
+    """
     radius = 53
     diameter = radius * 2
     outline_thickness = 7
     hover_outline_color = "white"
 
     def __init__(self, x, y, number):
+        """Constructor for the Circle class.
+
+        Parameters:
+        - number (int) : represents the given number of the circle, from 0 to 13 (0 and 7 correspond to the player's
+        points holes). The numbers are assigned from the top left (the first player's points hole) going
+        counterclockwise.
+        - x, y (float) represent the coordinates of the center of the circle.
+
+        Variables:
+        - pebbles (int) represents the number of pebbles found in the circle. By default, they are 4.
+        """
         self.number = number
         self.x = x
         self.y = y
         self.pebbles = 4
 
     def is_hovered_over(self, mouse_pos):
+        """Check if the mouse is hovering over the circle."""
         distance_from_center = ((self.x - mouse_pos[0]) ** 2 + (self.y - mouse_pos[1]) ** 2) ** 0.5
         return distance_from_center <= self.radius
 
     def draw_outline_hovered(self):
+        """Draw the outline of the circle when the mouse is hovering over it."""
         pygame.draw.circle(screen, self.hover_outline_color, (self.x, self.y), 45 +
                            self.outline_thickness, self.outline_thickness)
 
     def get_number(self):
+        """Get the number of the circle."""
         return self.number
 
     def add_pebble(self):
+        """Increase the number of pebbles for circle by 1."""
         self.pebbles += 1
 
     def add_n_pebbles(self, n):
+        """Increase the number of pebbles for circle by n."""
         self.pebbles += n
 
     def get_nr_of_pebbles(self):
+        """Get the number of pebbles in the circle."""
         return self.pebbles
 
     def remove_pebbles(self):
+        """Remove all pebbles from the circle."""
         self.pebbles = 0
 
 
 def get_background_image():
+    """Load, rescale and return the background image of the game."""
     background_image = pygame.image.load('Images/background.png').convert()
     background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
     return background_image
 
 
 def get_board():
+    """Load, rescale, and return the board image and its new width and height."""
     board_image = pygame.image.load('Images/mancala_board_blurred.png').convert_alpha()
     board_width = board_image.get_width() * 0.75
     board_height = board_image.get_height() * 0.75
@@ -70,6 +92,12 @@ def get_board():
 
 
 def get_flags():
+    """Load and return the images of the flags.
+    The flags are used to show the number of pebbles in a circle:
+    - num_flag_up and num_flag_down are used on the circles from the top and bottom rows
+    - player_one_flag and player_two_flag are used to show the number of points for each player and are displayed on
+    the side of each "player's points" hole
+    """
     num_flag_up = pygame.image.load('Images/number-flag-up.png').convert_alpha()
     num_flag_down = pygame.image.load('Images/number-flag-down.png').convert_alpha()
     player_one_flag = pygame.image.load('Images/player-one.png').convert_alpha()
@@ -78,6 +106,15 @@ def get_flags():
 
 
 def make_circles():
+    """Create and return the circles on the board.
+    The circles are created starting from the top left (the first player's points hole), going counterclockwise.
+
+    Variables:
+    - y1 and y2 correspond to the y coordinates of the first and the second row of circles
+    - circ0 and circ7 are the first and second player's points holes
+    - circ1 to circ6 are circles from the second row and correspond to the second player's circles
+    - circ8 to circ13 are circles from the first row and correspond to the first player's circles
+    """
     y1 = 287
     y2 = y1 + 150
     circ13 = Circle(326, y1, 13)  # randul 1, primul cerc
@@ -98,6 +135,19 @@ def make_circles():
 
 
 def draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, player_turn):
+    """Draw the outline and the flag of a circle when the mouse is hovering over it.
+
+    Parameters:
+    - circle_list (list) : list of the circles on the board
+    - mouse_pos (tuple) : tuple of the x and y coordinates corresponding to the mouse's position
+    - num_flag_up, num_flag_down (loaded images) : images of the flags that show the number of pebbles in a circle
+    - player_turn (int) : represents the current player's turn (1 or 2)
+
+    If the mouse is hovering over a circle from the top row (7 < circle.get_number() <= 13) and it's the first
+    player's turn, draw the outline and the flag of the circle.
+    If the mouse is hovering over a circle from the bottom row (0 < circle.get_number() <= 6) and it's the second
+    player's turn, draw the outline and the flag of the circle.
+    """
     for circle in circle_list:
         if circle.is_hovered_over(mouse_pos):
             if player_turn == 1 and circle.get_number() > 7:
@@ -108,7 +158,13 @@ def draw_hovered_circles(circle_list, mouse_pos, num_flag_up, num_flag_down, pla
                 draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down)
 
 
-def draw_flag_numbers(circle, nr_of_pebbles, rendered_number):
+def draw_flag_numbers(circle, rendered_number):
+    """Draw the number of pebbles in a circle on the flag of the circle.
+
+    Parameters:
+    - circle (Circle) : the circle in question
+    - rendered_number (rendered text) : the number of pebbles in the circle
+    """
     y_addition = 90
     if 7 < circle.get_number() <= 13:
         y_addition = -130
@@ -116,6 +172,18 @@ def draw_flag_numbers(circle, nr_of_pebbles, rendered_number):
 
 
 def draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down):
+    """Draw the flag that shows the number of pebbles on the hovered circle.
+
+    Parameters:
+    - circle_list (list) : list of the circles on the board
+    - mouse_pos (tuple) : tuple of the x and y coordinates corresponding to the mouse's position
+    - num_flag_up, num_flag_down (loaded images) : images of the flags that show the number of pebbles in a circle
+
+    If the mouse is hovering over a circle from the top row (7 < circle.get_number() <= 13), draw the flag above the
+    circle and then draw the number of pebbles on the flag.
+    If the mouse is hovering over a circle from the bottom row (0 < circle.get_number() <= 6), draw the flag below the
+    circle and then draw the number of pebbles on the flag.
+    """
     for circle in circle_list:
         nr_of_pebbles = circle.get_nr_of_pebbles()
         rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
@@ -123,28 +191,44 @@ def draw_nr_of_pebbles_flags(circle_list, mouse_pos, num_flag_up, num_flag_down)
             if 7 < circle.get_number() <= 13:
                 screen.blit(num_flag_up, (circle.x - num_flag_up.get_width() / 2,
                                           circle.y - 1.75 * num_flag_up.get_height()))
-                draw_flag_numbers(circle, nr_of_pebbles, rendered_number)
+                draw_flag_numbers(circle, rendered_number)
             elif 0 < circle.get_number() <= 6:
                 screen.blit(num_flag_down, (circle.x - num_flag_down.get_width() / 2,
                                             circle.y + 1.5 * num_flag_down.get_height() / 2))
-                draw_flag_numbers(circle, nr_of_pebbles, rendered_number)
+                draw_flag_numbers(circle, rendered_number)
 
 
 def draw_opponent_flags(circle_list, num_flag_up, num_flag_down, player_turn):
+    """Draw the flags that show the number of pebbles in the opponent's circles.
+
+    Parameters:
+    - circle_list (list) : list of the circles on the board
+    - num_flag_up, num_flag_down (loaded images) : images of the flags that show the number of pebbles in a circle
+    - player_turn (int) : represents the current player's turn (1 or 2)
+
+    If it's the first player's turn, draw the flags and the numbers on them for the circles in the bottom row.
+    If it's the second player's turn, draw the flags and the numbers on them for the circles in the top row.
+    """
     for circle in circle_list:
         nr_of_pebbles = circle.get_nr_of_pebbles()
         rendered_number = FONT.render(str(nr_of_pebbles), True, "white")
         if player_turn == 1 and 0 < circle.get_number() <= 6:
             screen.blit(num_flag_down,
                         (circle.x - num_flag_down.get_width() / 2, circle.y + 1.5 * num_flag_down.get_height() / 2))
-            draw_flag_numbers(circle, nr_of_pebbles, rendered_number)
+            draw_flag_numbers(circle, rendered_number)
         elif player_turn == 2 and 7 < circle.get_number() <= 13:
             screen.blit(num_flag_up,
                         (circle.x - num_flag_up.get_width() / 2, circle.y - 1.75 * num_flag_up.get_height()))
-            draw_flag_numbers(circle, nr_of_pebbles, rendered_number)
+            draw_flag_numbers(circle, rendered_number)
 
 
 def draw_player_flags(player_one_flag, player_two_flag, player_one_points, player_two_points):
+    """Draw the players' points flags and the number of points on them.
+
+    Parameters:
+    - player_one_flag, player_two_flag (loaded images) : images of the flags for the players' points flags
+    - player_one_points, player_two_points (int) : the number of points for each player
+    """
     screen.blit(player_one_flag, (16, 250))
     render_player_one_points = FONT.render(str(player_one_points), True, "white")
     if player_one_points > 9:
@@ -157,6 +241,7 @@ def draw_player_flags(player_one_flag, player_two_flag, player_one_points, playe
 
 
 def get_pebble_images():
+    """Load and return the images of pebbles. There is an image for 1 pebble, 2 pebbles and 3 or more pebbles."""
     one_pebble = pygame.image.load('Images/1-pebble-heart.png').convert_alpha()
     two_pebbles = pygame.image.load('Images/2-pebbles.png').convert_alpha()
     three_pebbles = pygame.image.load('Images/3-pebbles.png').convert_alpha()
@@ -164,6 +249,14 @@ def get_pebble_images():
 
 
 def draw_pebbles(circle_list):
+    """Draw the pebbles in the circles.
+
+    Parameter:
+    - circle_list (list) : list of the circles on the board
+
+    For each circle on the board, check the number of pebbles in the circle and draw the corresponding image of
+    pebbles in the circle.
+    """
     pebble_img_list = get_pebble_images()
     for circle in circle_list:
         nr_of_pebbles = circle.get_nr_of_pebbles()
@@ -179,6 +272,18 @@ def draw_pebbles(circle_list):
 
 
 def circle_is_clicked(circle_list, mouse_pos, player_turn):
+    """Check if a circle is clicked and return the new player's turn.
+
+    Parameters:
+    - circle_list (list) : list of the circles on the board
+    - mouse_pos (tuple) : tuple of the x and y coordinates corresponding to the mouse's position
+    - player_turn (int) : represents the current player's turn (1 or 2)
+
+    If a circle on the current player's side of the board is clicked, remove all pebbles from that circle and
+    redistribute them to the next circles counterclockwise, one pebble at a time, skipping the opponent's hole.
+    Remember the last circle where a pebble was dropped and calculate the next player's turn using the
+    last_circle_handling function.
+    """
     for circle in circle_list:
         if circle.is_hovered_over(mouse_pos) and ((player_turn == 1 and 7 < circle.get_number() <= 13) or
                                                   (player_turn == 2 and 0 < circle.get_number() <= 6)):
@@ -202,6 +307,19 @@ def circle_is_clicked(circle_list, mouse_pos, player_turn):
 
 
 def last_circle_handling(last_circle, circle_list, player_turn):
+    """Return the new player's turn based on the previous player's turn and the last circle where a pebble was dropped.
+
+    Parameters:
+    - last_circle (Circle) : the last circle where a pebble was dropped
+    - circle_list (list) : list of the circles on the board
+    - player_turn (int) : represents the last player's turn (1 or 2)
+
+    If the last_circle was the last player's points hole, the player gets another turn.
+    If the last_circle did not have any pebbles in it (so now has 1 pebble) and it is on the last player's side of
+    the board, the player gets all the pebbles from that last_circle and from the circle opposite of it and adds them to
+    their points.
+    Otherwise, the next player's turn is the other player's turn.
+    """
     if last_circle.get_number() == 0 and player_turn == 1:
         new_player_turn = 1
     elif last_circle.get_number() == 7 and player_turn == 2:
@@ -227,6 +345,14 @@ def last_circle_handling(last_circle, circle_list, player_turn):
 
 
 def load_player_turn_images(pvp):
+    """Load and return the images that show which player's turn it is after checking if the game is PvP or PvE.
+
+    Parameter:
+    - pvp (bool) : True if the game is PvP, False if the game is PvE
+
+    If the game is PvP, load images showing "Player I's turn" and "Player II's turn".
+    If the game is PvE, load images showing "Bot's turn" and "Your turn".
+    """
     if pvp:
         player_one_turn = pygame.image.load('Images/player-one-turn.png').convert_alpha()
         player_two_turn = pygame.image.load('Images/player-two-turn.png').convert_alpha()
@@ -237,6 +363,7 @@ def load_player_turn_images(pvp):
 
 
 def load_player_turn_highlights():
+    """Load, rescale and return image highlights showing which player's turn it is."""
     player_one_highlight = pygame.image.load('Images/player-one-highlight.png').convert_alpha()
     player_two_highlight = pygame.image.load('Images/player-two-highlight.png').convert_alpha()
     highlight_width = player_one_highlight.get_width() * 0.75
@@ -247,6 +374,8 @@ def load_player_turn_highlights():
 
 
 def draw_player_turn(player_turn, player_turn_images, player_turn_highlights, pvp):
+    """Draw at the top of the screen which player's turn it is and highlight on the top left or bottom right sides of
+    the board which player's turn it is."""
     draw_hint(player_turn, pvp)
     if player_turn == 1:
         screen.blit(player_turn_images[0], (SCREEN_WIDTH // 2 - player_turn_images[0].get_width() // 2, 0))
@@ -259,6 +388,7 @@ def draw_player_turn(player_turn, player_turn_images, player_turn_highlights, pv
 
 
 def draw_hint(player_turn, pvp):
+    """Draw at the bottom of the screen a hint for the current player."""
     if player_turn == 1 and pvp is True:
         hint = "Player I : Select a circle from the top row"
     else:
@@ -269,6 +399,10 @@ def draw_hint(player_turn, pvp):
 
 
 def is_final_state(circle_list):
+    """Check if the state of the game is a final one and return the number of the player that finished the game. If the
+    game is not in a final state, return 0.
+    The game is in a final state when all the holes from a player's side are empty.
+    """
     pebbles_row_1 = 0
     pebbles_row_2 = 0
     for circle in circle_list:
@@ -285,6 +419,13 @@ def is_final_state(circle_list):
 
 
 def distribute_last_pebbles(circle_list, final_state):
+    """Distribute the pebbles from the other player's side of the board (the player which didn't finish the game) to
+    that player's points hole.
+
+    Parameters:
+    - circle_list (list) : list of the circles on the board
+    - final_state (int) : the number of the player that finished the game (1 or 2)
+    """
     if final_state == 1:
         for circle in circle_list:
             if 0 < circle.get_number() <= 6:
@@ -298,6 +439,12 @@ def distribute_last_pebbles(circle_list, final_state):
 
 
 def draw_winner(player_one_points, player_two_points, pvp):
+    """Load, rescale and draw the winner banner, the winner text on it and the players' points below them.
+
+    Parameters:
+    - player_one_points, player_two_points (int) : the number of points for each player
+    - pvp (bool) : True if the game is PvP, False if the game is PvE
+    """
     if player_one_points > player_two_points and pvp:
         winner = "Player I wins!"
     elif player_one_points < player_two_points and pvp:
@@ -339,6 +486,7 @@ def draw_winner(player_one_points, player_two_points, pvp):
 
 
 def draw_title():
+    """Render and draw the title of the game."""
     title = "MANCALA"
     rendered_title = TITLE_FONT.render(title, True, "white")
     rendered_title_black = TITLE_FONT.render(title, True, "black")
@@ -352,6 +500,14 @@ def draw_title():
 
 
 def draw_menu_buttons(button_width, button_height, mouse_pos):
+    """Draw the buttons on the menu screen for PvP and PvE and change their color if the mouse is hovering over them.
+
+    Parameters:
+    - button_width, button_height (int) : the width and height of the buttons
+    - mouse_pos (tuple) : tuple of the x and y coordinates corresponding to the mouse's position
+
+    The buttons have black rectangles behind them to make them more visible and for aesthetic purposes.
+    """
     pygame.draw.rect(screen, "black", (SCREEN_WIDTH // 2 - button_width - 55, SCREEN_HEIGHT // 2 + 70,
                                        button_width, button_height))
     pygame.draw.rect(screen, "black", (SCREEN_WIDTH // 2 - button_width - 45, SCREEN_HEIGHT // 2 + 80,
@@ -399,6 +555,7 @@ def draw_menu_buttons(button_width, button_height, mouse_pos):
 
 
 def check_pvp(button_width, button_height, mouse_pos):
+    """Return True if the mouse is hovering over the PvP button or False otherwise."""
     if ((mouse_pos[0] > SCREEN_WIDTH // 2 - button_width - 50) and (mouse_pos[0] < SCREEN_WIDTH // 2 - 50) and
             (mouse_pos[1] > SCREEN_HEIGHT // 2 + 75) and (mouse_pos[1] < SCREEN_HEIGHT // 2 + 75 + button_height)):
         return True
@@ -406,6 +563,7 @@ def check_pvp(button_width, button_height, mouse_pos):
 
 
 def check_pve(button_width, button_height, mouse_pos):
+    """Return True if the mouse is hovering over the PvE button or False otherwise."""
     if ((mouse_pos[0] > SCREEN_WIDTH // 2 + 50) and (mouse_pos[0] < SCREEN_WIDTH // 2 + button_width + 50) and
             (mouse_pos[1] > SCREEN_HEIGHT // 2 + 75) and (mouse_pos[1] < SCREEN_HEIGHT // 2 + 75 + button_height)):
         return True
@@ -413,6 +571,13 @@ def check_pve(button_width, button_height, mouse_pos):
 
 
 def menu_button_pressed(pvp, pve, button_width, button_height):
+    """Draw the pressed button in another color.
+
+    Parameters:
+    - pvp (bool) : True if the PvP button was pressed, False otherwise
+    - pve (bool) : True if the PvE button was pressed, False otherwise
+    - button_width, button_height (int) : the width and height of the buttons (they have the same width and height)
+    """
     pressed_color = (82, 207, 209)
     if pvp:
         pygame.draw.rect(screen, pressed_color, (SCREEN_WIDTH // 2 - button_width - 50, SCREEN_HEIGHT // 2 + 75,
@@ -433,6 +598,16 @@ def menu_button_pressed(pvp, pve, button_width, button_height):
 
 
 def draw_menu_screen(menu_screen, background_image):
+    """This is the main function for the menu screen.
+    Draw the menu screen, the PvP button, the PvE button and the Quit button and check if the mouse is hovering over a
+    button or if a button is pressed.
+    Return True if the PvP button was pressed or False if the PvE button was pressed.
+    Quit the game if the Quit button was pressed or the X button was pressed (the one from top right).
+
+    Parameters:
+    - menu_screen (bool) : True if the menu screen is displayed, False otherwise
+    - background_image (loaded image) : the background image for the menu screen
+    """
     while menu_screen:
         screen.blit(background_image, (0, 0))
         mouse_pos = pygame.mouse.get_pos()
@@ -463,6 +638,9 @@ def draw_menu_screen(menu_screen, background_image):
 
 
 def draw_quit_button():
+    """Draw the Quit button and change its color if the mouse is hovering over it.
+    Return the coordinates and dimensions of the button.
+    """
     mouse_pos = pygame.mouse.get_pos()
     button_width = 150
     button_height = 50
@@ -492,6 +670,7 @@ def draw_quit_button():
 
 
 def draw_back_to_menu_button():
+    """Draw the Back to menu button and change its color if the mouse is hovering over it."""
     mouse_pos = pygame.mouse.get_pos()
     button_width = 300
     button_height = 50
@@ -519,6 +698,17 @@ def draw_back_to_menu_button():
 
 
 def draw_winner_screen(winner_screen, background_image, circle_list, pvp):
+    """This is the main function for the winner screen.
+    Draw the winner screen and check if the mouse is hovering over the buttons or if a button is pressed.
+    Return to the menu screen if the Back to menu button was pressed.
+    Quit the game if the Quit button was pressed or if the X button was pressed (the one from top right).
+
+    Parameters:
+    - winner_screen (bool) : True if the winner screen is displayed, False otherwise
+    - background_image (loaded image) : the background image for the winner screen
+    - circle_list (list) : list of the circles on the board
+    - pvp (bool) : True if the game is PvP, False if the game is PvE
+    """
     while winner_screen:
         screen.blit(background_image, (0, 0))
         draw_winner(circle_list[0].get_nr_of_pebbles(), circle_list[7].get_nr_of_pebbles(), pvp)
@@ -546,6 +736,12 @@ def draw_winner_screen(winner_screen, background_image, circle_list, pvp):
 
 
 def bot_turn(circle_list):
+    """Select a random circle which has pebbles in it from the top side (the bot's side) of the board and return it.
+    This function makes the bot's selection.
+
+    Parameter:
+    - circle_list (list) : list of the circles on the board
+    """
     bot_selected = 0
     while not bot_selected:
         bot_selected = random.randint(8, 13)
@@ -557,6 +753,9 @@ def bot_turn(circle_list):
 
 
 def highlight_bot_selected(circle):
+    """Highlight the circle selected by the bot for a period of time.
+    This function was created to make the bot's selection more visible for the player.
+    """
     for i in range(1, 10):
         circle.draw_outline_hovered()
         pygame.time.wait(200)
@@ -564,6 +763,14 @@ def highlight_bot_selected(circle):
 
 
 def bot_selection(circle_list, bot_selected):
+    """Distribute the pebbles from the selected circle and return the next player's turn.
+    This function is called after the bot selected a circle, so only in PvE mode and is similar to the
+    circle_is_clicked function.
+
+    Parameters:
+    - circle_list (list) : list of the circles on the board
+    - bot_selected (Circle) : the circle selected by the bot
+    """
     current_pebbles = bot_selected.get_nr_of_pebbles()
     bot_selected.remove_pebbles()
     i = 1
@@ -581,6 +788,22 @@ def bot_selection(circle_list, bot_selected):
 
 def draw_game_screen(playing, background_image, board_image, circle_list, player_turn, player_turn_images,
                      player_turn_highlights, num_flag_up, num_flag_down, player_one_flag, player_two_flag, pvp):
+    """This is the main function for the game screen - it captures the playing phase.
+    Draw the game screen, the board, the pebbles, the player's and opponent's flags and the hovered circles.
+    Draw the player's turn banner from the top of the screen and the hint at the bottom.
+    Check if the mouse is hovering over a circle and if a circle is clicked.
+    Check if the game is in PvE mode and make the bot's selection if it's the bot's turn.
+    Check if the game is in a final state and distribute the pebbles accordingly and then return.
+    Quit the game if the X button was pressed (the one from top right).
+
+    Parameters:
+    - playing (bool) : True if the game screen is displayed, False otherwise
+    - background_image, board_image, player_turn_images, player_turn_highlights (loaded images)
+    - circle_list (list) : list of the circles on the board
+    - player_turn (int) : the number of the player which has the turn
+    - num_flag_up, num_flag_down, player_one_flag, player_two_flag (loaded images) : flag images
+    - pvp (bool) : True if the game is PvP, False if the game is PvE
+    """
     while playing:
         screen.blit(background_image, (0, 0))
         board_position = (SCREEN_WIDTH // 2 - board_image.get_width() // 2,
@@ -618,6 +841,9 @@ def draw_game_screen(playing, background_image, board_image, circle_list, player
 
 
 def setup(circle_list):
+    """Set up the board for a new game: that means removing the pebbles from the player's holes and adding 4 pebbles
+    to the rest of them each.
+    """
     for circle in circle_list:
         circle.remove_pebbles()
         circle.add_n_pebbles(4)
@@ -631,6 +857,20 @@ def setup(circle_list):
 
 
 def main():
+    """This is the main function of the game.
+    It loads some images (the board, the background, the flags).
+    It creates the circle objects and stores them in a list. (it is actually a tuple, but it sounds better to say
+    it's a list(sorry))
+    It sets the first player's turn to 1 (player I), but that can be changed to a random choice between 1 and 2.
+    It sets the menu_screen to True and the other screens to false.
+    In the while loop, which can be exited only by quitting the game (pressing the X button or the Quit button where
+    there is one), the menu screen is displayed at first and the game starts when the player presses the PvP or PvE
+    button.
+    The game screen is displayed then (after making the setup for a new game), in PvP or PvE mode (depending on the
+    previous choice) and it is played until it reaches a final state.
+    After that, the winner screen is displayed in which the player can choose between going back to the menu and
+    starting another game, or quitting the game.
+    """
     board_image, board_width, board_height = get_board()
     background_image = get_background_image()
     num_flag_up, num_flag_down, player_one_flag, player_two_flag = get_flags()
@@ -644,6 +884,8 @@ def main():
     playing = False
     winner_screen = False
     pvp = True
+
+    # print(main.__doc__)
 
     while True:
         if menu_screen:
